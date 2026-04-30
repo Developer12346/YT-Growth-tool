@@ -133,10 +133,10 @@ if ctr_btn and user_title:
         st.success("High CTR — good to go")
 
     st.mast.markdown("""
-<hr style="border:1px solid #333;">
+st.markdown("---")
 
-<center>
-<p style="color:gray; font-size:14px;">
-🚀 Made with ❤️ by <b>FireGaming982</b>
-</p>
-</center>
+st.markdown("""
+<div style='text-align: center; color: gray; font-size: 14px; padding-top: 10px;'>
+    🚀 Made with ❤️ by <b>FireGaming982</b>
+</div>
+""", unsafe_allow_html=True)
