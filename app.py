@@ -140,4 +140,3 @@ if ctr_btn and user_title:
 🚀 Made with ❤️ by <b>FireGaming982</b>
 </p>
 </center>
-""", unsafe_allow_html=True)rkdown('</div>', unsafe_allow_html=True)
