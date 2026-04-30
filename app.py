@@ -130,13 +130,18 @@ if ctr_btn and user_title:
     elif score < 80:
         st.warning("Decent CTR — can improve")
     else:
+       if score < 60:
+        st.error("Low CTR — improve title")
+    elif score < 80:
+        st.warning("Decent CTR — can improve")
+    else:
         st.success("High CTR — good to go")
 
-    st.mast.markdown("""
-st.markdown("---")
+st.markdown('</div>', unsafe_allow_html=True)  # close the card div
 
+st.markdown("---")
 st.markdown("""
 <div style='text-align: center; color: gray; font-size: 14px; padding-top: 10px;'>
     Made by <b>FireGaming982</b>
 </div>
-""", unsafe_allow_html=True)
+""", unsafe_allow_html=True)#code completed with branding
