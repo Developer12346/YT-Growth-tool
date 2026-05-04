@@ -1,6 +1,3 @@
-# 🚀 app.py (Updated Full Version)
-
-```python
 import streamlit as st
 import random
 import requests
