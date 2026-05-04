@@ -1,82 +1,121 @@
+# 🚀 app.py (Updated Full Version)
+
+```python
 import streamlit as st
 import random
+import requests
 
-# SAFE IMPORT (prevents crash)
+# ---------------- SAFE IMPORT ----------------
 try:
     from pytrends.request import TrendReq
     PYTRENDS_AVAILABLE = True
 except:
     PYTRENDS_AVAILABLE = False
 
-# ---------------- UI CONFIG ----------------
+# ---------------- PAGE CONFIG ----------------
 st.set_page_config(page_title="🔥 YT Growth Tool", layout="wide")
-st.markdown("""
-<style>
-body {background-color: #0e1117;}
-.card {
-    padding:20px;
-    border-radius:15px;
-    background:#1c1f26;
-    margin-bottom:20px;
-}
-</style>
-""", unsafe_allow_html=True)
 
-st.title("🔥 YouTube Growth Tool")
+st.title("🔥 FireGaming982 YouTube Growth Tool")
 
-# ---------------- INPUT ----------------
-st.markdown('<div class="card">', unsafe_allow_html=True)
-topic = st.text_input("🎮 Enter Topic")
+# ---------------- UI ----------------
+topic = st.text_input("🎮 Enter Topic (e.g. Roblox, BGMI)")
 keywords = st.text_input("🔑 Keywords (comma separated)")
-user_title = st.text_input("📝 Enter Your Title (for CTR check)")
-st.markdown('</div>', unsafe_allow_html=True)
+user_title = st.text_input("📝 Test Your Title (CTR Checker)")
 
-# ---------------- FUNCTIONS ----------------
-def get_trends(topic):
-    if not PYTRENDS_AVAILABLE:
-        return [
-            f"{topic} funny moments",
-            f"{topic} viral clips",
-            f"{topic} insane gameplay",
-            f"{topic} trending now 🔥"
-        ]
+# ---------------- AI FUNCTION (FREE + SAFE) ----------------
+def ai_generate(prompt):
     try:
-        pytrends = TrendReq(hl='en-IN', tz=330)
-        pytrends.build_payload([topic], timeframe='now 7-d', geo='IN')
-        data = pytrends.related_queries()
-        trends = []
-        if topic in data:
-            if data[topic]['rising'] is not None:
-                trends += data[topic]['rising']['query'].tolist()
-            if data[topic]['top'] is not None:
-                trends += data[topic]['top']['query'].tolist()
-        return trends[:10]
+        API_URL = "https://api-inference.huggingface.co/models/google/flan-t5-base"
+
+        response = requests.post(
+            API_URL,
+            json={"inputs": prompt},
+            timeout=12
+        )
+
+        data = response.json()
+
+        if isinstance(data, list) and len(data) > 0:
+            return data[0].get("generated_text", None)
+
+        return None
+
     except:
-        return ["Trend fetch failed"]
+        return None
 
-def generate_titles(topic, keywords):
-    kw = keywords.split(",")[0].strip() if keywords else topic
-    formats = [
-        "This {kw} Moment Was INSANE 😳",
-        "You Won't Believe This {kw} 🔥",
-        "Most CRAZY {kw} Ever 💀",
-        "This {kw} Should NOT Happen 😳",
-        "1 Minute of {kw} Chaos 😂"
+# ---------------- TRENDS ----------------
+def get_trends(topic):
+    if PYTRENDS_AVAILABLE:
+        try:
+            pytrends = TrendReq(hl='en-IN', tz=330)
+            pytrends.build_payload([topic], timeframe='now 7-d', geo='IN')
+            data = pytrends.related_queries()
+
+            trends = []
+
+            if topic in data:
+                if data[topic]['rising'] is not None:
+                    trends += data[topic]['rising']['query'].tolist()
+                if data[topic]['top'] is not None:
+                    trends += data[topic]['top']['query'].tolist()
+
+            if len(trends) > 0:
+                return trends[:10]
+        except:
+            pass
+
+    # fallback
+    return [
+        f"{topic} gameplay",
+        f"{topic} funny moments",
+        f"{topic} update",
+        f"{topic} secrets",
+        f"{topic} vs pro",
+        f"{topic} challenge",
+        f"{topic} highlights",
     ]
-    return [f.format(kw=kw) for f in formats]
 
+# ---------------- TITLES ----------------
+def generate_titles(topic, keywords):
+    prompt = f"Generate 5 viral YouTube gaming titles for topic: {topic} with keywords: {keywords}"
+
+    ai_output = ai_generate(prompt)
+
+    if ai_output:
+        return ai_output.split("\n")
+
+    # fallback
+    kw = keywords.split(",")[0] if keywords else topic
+
+    return [
+        f"{topic} but Everything Went WRONG 😳",
+        f"I Tried {topic} and It was INSANE 🔥",
+        f"Only 1% Can Do This in {topic} 🤯",
+        f"{topic} Moments You Can’t Believe 💀",
+        f"This {topic} Trick is BROKEN 😳"
+    ]
+
+# ---------------- CTR ----------------
 def calculate_ctr(title):
-    score = 50
-    if any(w in title.lower() for w in ["insane", "crazy"]):
+    score = 40
+
+    if any(w in title.lower() for w in ["insane", "crazy", "broken"]):
         score += 20
-    if any(e in title for e in ["😳", "🔥", "💀", "😂"]):
-        score += 15
-    if 40 <= len(title) <= 70:
-        score += 15
+
+    if any(e in title for e in ["😳", "🔥", "💀", "🤯"]):
+        score += 10
+
+    if 45 <= len(title) <= 70:
+        score += 20
+
+    if any(w in title.lower() for w in ["you", "this", "i"]):
+        score += 10
+
     return min(score, 100)
 
 # ---------------- BUTTONS ----------------
 col1, col2, col3 = st.columns(3)
+
 with col1:
     trend_btn = st.button("📈 Trends")
 with col2:
@@ -86,36 +125,29 @@ with col3:
 
 # ---------------- OUTPUT ----------------
 if trend_btn and topic:
-    st.markdown('<div class="card">', unsafe_allow_html=True)
     st.subheader("🔥 Trending Ideas")
     for t in get_trends(topic):
         st.write("•", t)
-    st.markdown('</div>', unsafe_allow_html=True)
 
 if title_btn and topic:
-    st.markdown('<div class="card">', unsafe_allow_html=True)
-    st.subheader("🎯 Title Ideas")
-    titles = generate_titles(topic, keywords)
-    for t in titles:
+    st.subheader("🎯 Viral Titles")
+    for t in generate_titles(topic, keywords):
         st.write("•", t)
-    st.markdown('</div>', unsafe_allow_html=True)
 
 if ctr_btn and user_title:
-    st.markdown('<div class="card">', unsafe_allow_html=True)
     st.subheader("📊 CTR Score")
     score = calculate_ctr(user_title)
-    st.metric("CTR Score", f"{score}/100")
-    if score < 60:
-        st.error("Low CTR — improve title")
-    elif score < 80:
-        st.warning("Decent CTR — can improve")
-    else:
-        st.success("High CTR — good to go")
-    st.markdown('</div>', unsafe_allow_html=True)
 
+    st.metric("CTR Score", f"{score}/100")
+
+    if score < 60:
+        st.error("Low CTR — weak title")
+    elif score < 80:
+        st.warning("Decent CTR — improve hook")
+    else:
+        st.success("High CTR — strong title")
+
+# ---------------- FOOTER ----------------
 st.markdown("---")
-st.markdown("""
-<div style='text-align: center; color: gray; font-size: 14px; padding-top: 10px;'>
-    Made by <b>FireGaming982</b>
-</div>
-""", unsafe_allow_html=True)
+st.markdown("🔥 Built by FireGaming982")
+```
