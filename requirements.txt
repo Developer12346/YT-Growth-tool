@@ -2,3 +2,4 @@ streamlit==1.57.0
 pytrends==4.9.2
 pandas
 lxml
+requests
