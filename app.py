@@ -1,45 +1,25 @@
+import random
 import streamlit as st
-import requests
 
-# ---------------- SAFE IMPORT ----------------
 try:
     from pytrends.request import TrendReq
     PYTRENDS_AVAILABLE = True
 except Exception:
     PYTRENDS_AVAILABLE = False
 
-# ---------------- PAGE CONFIG ----------------
 st.set_page_config(page_title="YT Growth Tool", layout="wide")
 
 st.title("FireGaming982 YouTube Growth Tool")
 
-# ---------------- UI ----------------
 topic = st.text_input("Enter Topic (e.g. Roblox, BGMI)")
 keywords = st.text_input("Keywords (comma separated)")
 user_title = st.text_input("Test Your Title (CTR Checker)")
 
-# ---------------- AI FUNCTION ----------------
-def ai_generate(prompt):
-    try:
-        api_url = "https://api-inference.huggingface.co/models/google/flan-t5-base"
 
-        response = requests.post(
-            api_url,
-            json={"inputs": prompt},
-            timeout=12
-        )
+def get_keyword_list(keywords):
+    return [keyword.strip() for keyword in keywords.split(",") if keyword.strip()]
 
-        data = response.json()
 
-        if isinstance(data, list) and len(data) > 0:
-            return data[0].get("generated_text")
-
-        return None
-
-    except Exception:
-        return None
-
-# ---------------- TRENDS ----------------
 def get_trends(topic):
     if PYTRENDS_AVAILABLE:
         try:
@@ -63,48 +43,59 @@ def get_trends(topic):
             pass
 
     return [
-        f"{topic} gameplay",
-        f"{topic} funny moments",
-        f"{topic} update",
-        f"{topic} secrets",
-        f"{topic} vs pro",
-        f"{topic} challenge",
-        f"{topic} highlights",
+        f"{topic} latest update",
+        f"{topic} old map",
+        f"{topic} new event",
+        f"{topic} hidden secrets",
+        f"{topic} best moments",
+        f"{topic} challenge ideas",
+        f"{topic} nostalgia",
     ]
 
-# ---------------- TITLES ----------------
+
 def generate_titles(topic, keywords):
-    prompt = f"Generate 5 viral YouTube gaming titles for topic: {topic} with keywords: {keywords}"
+    keyword_list = get_keyword_list(keywords)
+    main_keyword = keyword_list[0] if keyword_list else topic
 
-    ai_output = ai_generate(prompt)
-
-    if ai_output:
-        titles = ai_output.split("\n")
-        titles = [title.strip("-• 1234567890. ") for title in titles if title.strip()]
-
-        if titles:
-            return titles[:5]
-
-    return [
-        f"{topic} but Everything Went WRONG",
-        f"I Tried {topic} and It was INSANE",
-        f"Only 1% Can Do This in {topic}",
-        f"{topic} Moments You Can't Believe",
-        f"This {topic} Trick is BROKEN",
+    title_patterns = [
+        f"Revisiting {topic}: Does It Still Feel the Same?",
+        f"{topic} Then vs Now: What Actually Changed?",
+        f"I Played {main_keyword} Like the Old Days Again",
+        f"The Forgotten Side of {topic} Nobody Talks About",
+        f"Why {topic} Hits Different Now",
+        f"Can {topic} Still Give Us That Old Feeling?",
+        f"I Went Back to {topic} After Years",
+        f"{topic} Nostalgia Is Stronger Than I Expected",
+        f"The Part of {topic} Everyone Forgot",
+        f"What Made Old {topic} So Special?",
+        f"I Tried to Recreate My Old {topic} Memories",
+        f"{topic} Feels Different Now... But Why?",
+        f"The Most Nostalgic Things in {topic}",
+        f"I Found Something in {topic} That Took Me Back",
+        f"Old {topic} Players Will Remember This",
     ]
 
-# ---------------- CTR ----------------
+    random.shuffle(title_patterns)
+    return title_patterns[:5]
+
+
 def calculate_ctr(title):
     score = 40
     lower_title = title.lower()
 
-    if any(word in lower_title for word in ["insane", "crazy", "broken", "secret", "shocking"]):
+    strong_words = [
+        "forgotten", "hidden", "secret", "nostalgia", "old",
+        "new", "why", "changed", "special", "remember",
+        "different", "rare", "best", "update",
+    ]
+
+    if any(word in lower_title for word in strong_words):
         score += 20
 
-    if any(word in lower_title for word in ["you", "this", "i", "only"]):
+    if any(word in lower_title for word in ["you", "i", "why", "how", "can", "what"]):
         score += 10
 
-    if any(char in title for char in ["!", "?", "🔥", "😳", "💀", "🤯"]):
+    if any(char in title for char in ["!", "?", "🔥", "🎮", "😳", "🤯"]):
         score += 10
 
     if 35 <= len(title) <= 75:
@@ -112,7 +103,7 @@ def calculate_ctr(title):
 
     return min(score, 100)
 
-# ---------------- BUTTONS ----------------
+
 col1, col2, col3 = st.columns(3)
 
 with col1:
@@ -124,7 +115,7 @@ with col2:
 with col3:
     ctr_btn = st.button("CTR")
 
-# ---------------- OUTPUT ----------------
+
 if trend_btn:
     if topic:
         st.subheader("Trending Ideas")
@@ -133,13 +124,15 @@ if trend_btn:
     else:
         st.warning("Please enter a topic first.")
 
+
 if title_btn:
     if topic:
-        st.subheader("Viral Titles")
+        st.subheader("Title Ideas")
         for title in generate_titles(topic, keywords):
             st.write("•", title)
     else:
         st.warning("Please enter a topic first.")
+
 
 if ctr_btn:
     if user_title:
@@ -157,6 +150,6 @@ if ctr_btn:
     else:
         st.warning("Please enter a title to check.")
 
-# ---------------- FOOTER ----------------
+
 st.markdown("---")
-st.markdown("Built by FireGaming982")
+st.markdown("🔥 Built by FireGaming982 🎮")
