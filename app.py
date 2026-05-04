@@ -153,3 +153,4 @@ if ctr_btn:
 
 st.markdown("---")
 st.markdown("🔥 Built by FireGaming982 🎮")
+st.markdown("Update 1.1- Bug Fixes with Titles And Trends Apps")
